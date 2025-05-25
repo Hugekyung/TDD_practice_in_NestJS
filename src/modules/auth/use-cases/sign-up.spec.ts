@@ -13,19 +13,10 @@ describe('SignUpUseCase TEST', () => {
     });
 
     describe('비밀번호 검증', () => {
-        it('비밀번호 길이가 8자리 보다 작으면 11006 error code를 반환한다', () => {
-            // * given
-            const password = '1234';
-
-            // * then
-            expect(() => useCase.validatePassword(password)).toThrow('11006');
-        });
-
-        it('비밀번호 길이가 20자리 보다 길면 11006 error code를 반환한다', () => {
-            // * given
-            const password = 'password12345678901234567890';
-
-            // * then
+        it.each([
+            ['비밀번호 길이가 8자리 보다 작으면', 'psword'],
+            ['비밀번호 길이가 20자리 보다 길면', 'password'.repeat(5)],
+        ])('11006 error code를 반환한다', (_, password) => {
             expect(() => useCase.validatePassword(password)).toThrow('11006');
         });
 
