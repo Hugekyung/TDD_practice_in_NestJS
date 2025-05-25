@@ -14,6 +14,13 @@ export class AuthService {
 
         // todo 1: 비밀번호 검증
         this.signUpUseCase.validatePassword(password);
+
+        // todo 2: 이메일 중복 검증
+        // * 일주일 이내 탈퇴한 계정 => 11002
+        // * 탈퇴한지 7 이후, 30일 이내인 경우 => 개인정보 파기
+        // * 동일한 이메일 존재 => 11004
+
+        // todo 3: 휴대전화 번호 중복 검증
         return null;
     }
 }
