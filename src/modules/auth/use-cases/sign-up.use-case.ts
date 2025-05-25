@@ -1,12 +1,8 @@
-import { ValidatePasswordReqDto } from './sign-up.dto';
-
 export class SignUpUseCase {
     constructor() {}
 
-    validatePassword(requestDto: ValidatePasswordReqDto): boolean {
-        const { password } = requestDto;
-        if (password.length < 8) {
-            console.log('password >>', password); //debug
+    validatePassword(password: string): boolean {
+        if (password.length < 8 || password.length > 20) {
             throw new Error('11006');
         }
 

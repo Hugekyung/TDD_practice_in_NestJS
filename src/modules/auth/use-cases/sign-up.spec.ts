@@ -15,18 +15,29 @@ describe('SignUpUseCase TEST', () => {
     describe('비밀번호 검증', () => {
         it('비밀번호 길이가 8자리 보다 작으면 11006 error code를 반환한다', () => {
             // * given
-            const requestDto = SignUpTestObjectFixture.getFailedSignUpReqDto();
+            const password = '1234';
 
             // * then
-            expect(() => useCase.validatePassword(requestDto)).toThrow('11006');
+            expect(() => useCase.validatePassword(password)).toThrow('11006');
+        });
+
+        it('비밀번호 길이가 20자리 보다 길면 11006 error code를 반환한다', () => {
+            // * given
+            const password = 'password12345678901234567890';
+
+            // * then
+            expect(() => useCase.validatePassword(password)).toThrow('11006');
+        });
+
+        it('비밀번호 길이가 8자 이상 20자 이하이면 true를 반환한다', () => {
+            // * given
+            const password = 'password1234';
+
+            // * when
+            const result = useCase.validatePassword(password);
+
+            // * then
+            expect(result).toBeTruthy();
         });
     });
 });
-
-class SignUpTestObjectFixture {
-    static getFailedSignUpReqDto() {
-        return {
-            password: '1234',
-        };
-    }
-}
