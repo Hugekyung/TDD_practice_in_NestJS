@@ -1,7 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LocalDate, nativeJs } from 'js-joda';
 import { UserRepositoryToken } from '../../../../common/constants/injection-tokens.constant';
-import { UserRepository } from '../../user.repository';
 import { SignUpUseCase } from './sign-up.use-case';
 import { IUserRepository } from './user-repository.interface';
 
@@ -23,7 +21,7 @@ describe('SignUpUseCase TEST', () => {
         }).compile();
 
         useCase = module.get<SignUpUseCase>(SignUpUseCase);
-        userRepository = module.get<UserRepository>(UserRepository);
+        userRepository = module.get<IUserRepository>(UserRepositoryToken);
     });
 
     describe('validatePassword', () => {
@@ -61,32 +59,17 @@ describe('SignUpUseCase TEST', () => {
             deletedAt: null,
         };
 
-        beforeEach(() => {
+        beforeAll(() => {
             // * given: userRepository.findOne() mocked
             jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
         });
 
-        it('탈퇴한지 일주일 이내 계정인 경우 11002 error code를 반환한다', () => {
-            // * then
-            expect(async () => await useCase.validateEmail(mockUser.email)).toThrow('11002');
+        it('탈퇴한지 일주일 이내 계정인 경우 11002 error code를 반환한다', async () => {
+            mockUser.deletedAt = new Date('2025-05-25');
+            jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue(mockUser);
 
-            // * given
-            const now = LocalDate.parse('2025-05-25');
-            const user = {
-                deletedAt: new Date('2025-05-21'), // 4일 전
-            };
-
-            // * when
-            const run = () => {
-                const oneWeekAgo = now.minusWeeks(1);
-                const userDeletedAt = LocalDate.from(nativeJs(user.deletedAt));
-                if (oneWeekAgo.isBefore(userDeletedAt)) {
-                    throw new Error('error-code: 11002');
-                }
-            };
-
-            // * then
-            expect(run).toThrow('error-code: 11002');
+            // * when & then
+            await expect(useCase.validateEmail(mockUser.email)).rejects.toThrow('11002');
         });
 
         it('탈퇴한지 7일 이후, 30일 이내인 경우 개인정보 파기 메서드를 실행한다', () => {});
