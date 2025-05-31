@@ -25,6 +25,12 @@ export class SignUpUseCase implements ISignUpUseCase {
             return true; // * 동일 이메일로 가입자 없음. 가입 가능
         }
 
+        // * 동일한 이메일 존재 => 11004
+        if (user.email === email) {
+            console.log('동일한 이메일 !');
+            throw new Error('11004');
+        }
+
         // * 일주일 이내 탈퇴한 계정 => 11002
         const now = LocalDate.now();
         if (user.deletedAt) {
@@ -35,8 +41,6 @@ export class SignUpUseCase implements ISignUpUseCase {
             }
         }
 
-        // * 동일한 이메일 존재 => 11004
-
-        return;
+        return true;
     }
 }

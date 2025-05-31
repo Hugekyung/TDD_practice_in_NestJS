@@ -62,32 +62,27 @@ describe('SignUpUseCase TEST', () => {
             deletedAt: null,
         };
 
-        beforeAll(() => {
+        beforeEach(() => {
             // * given: userRepository.findOne() mocked
             jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
         });
 
+        it('동일한 이메일이 존재할 경우 11004 error code를 반환한다', async () => {
+            // * given: userRepository.findOne() mocked
+            jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
+
+            // * then
+            await expect(useCase.validateEmail(mockUser.email)).rejects.toThrow('11004');
+        });
+
         it('탈퇴한지 일주일 이내 계정인 경우 11002 error code를 반환한다', async () => {
+            // * given
+            const email = 'test2@example.com'; // * 존재하지 않는 이메일
             mockUser.deletedAt = convert(now.minusDays(3)).toDate();
-            console.log(createdAt, mockUser.deletedAt);
             jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue(mockUser);
 
             // * when & then
-            await expect(useCase.validateEmail(mockUser.email)).rejects.toThrow('11002');
-        });
-
-        it('동일한 이메일이 존재할 경우 11004 error code를 반환한다', () => {
-            // * given: userRepository.findOne() mocked
-            jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue({
-                id: 1,
-                email: 'test@example.com',
-                password: 'user123444',
-                createdAt: new Date('2025-05-25'),
-                deletedAt: null,
-            });
-
-            // * then
-            expect(async () => await useCase.validateEmail(mockUser.email)).toThrow('11004');
+            await expect(useCase.validateEmail(email)).rejects.toThrow('11002');
         });
     });
 });
