@@ -34,7 +34,7 @@ export class SignUpUseCase implements ISignUpUseCase {
                 throw new Error('11002');
             }
         }
-        // * 탈퇴한지 7 이후, 30일 이내인 경우 => 개인정보 파기
+
         // * 동일한 이메일 존재 => 11004
 
         return;

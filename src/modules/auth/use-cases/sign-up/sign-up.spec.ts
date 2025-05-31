@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { convert, LocalDateTime } from 'js-joda';
 import { UserRepositoryToken } from '../../../../common/constants/injection-tokens.constant';
 import { SignUpUseCase } from './sign-up.use-case';
 import { IUserRepository } from './user-repository.interface';
@@ -45,6 +46,8 @@ describe('SignUpUseCase TEST', () => {
     });
 
     describe('validateEmail', () => {
+        const now = LocalDateTime.now();
+        const createdAt = convert(now).toDate();
         const mockUser: {
             id: number;
             email: string;
@@ -55,7 +58,7 @@ describe('SignUpUseCase TEST', () => {
             id: 2,
             email: 'test@example.com',
             password: 'user123444',
-            createdAt: new Date('2025-05-26'),
+            createdAt,
             deletedAt: null,
         };
 
@@ -65,14 +68,13 @@ describe('SignUpUseCase TEST', () => {
         });
 
         it('탈퇴한지 일주일 이내 계정인 경우 11002 error code를 반환한다', async () => {
-            mockUser.deletedAt = new Date('2025-05-25');
+            mockUser.deletedAt = convert(now.minusDays(3)).toDate();
+            console.log(createdAt, mockUser.deletedAt);
             jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue(mockUser);
 
             // * when & then
             await expect(useCase.validateEmail(mockUser.email)).rejects.toThrow('11002');
         });
-
-        it('탈퇴한지 7일 이후, 30일 이내인 경우 개인정보 파기 메서드를 실행한다', () => {});
 
         it('동일한 이메일이 존재할 경우 11004 error code를 반환한다', () => {
             // * given: userRepository.findOne() mocked
