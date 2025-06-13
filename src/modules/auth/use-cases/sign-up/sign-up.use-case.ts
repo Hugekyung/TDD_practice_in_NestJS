@@ -18,8 +18,7 @@ export class SignUpUseCase implements ISignUpUseCase {
         return true;
     }
 
-    // todo 2: 이메일 중복 검증
-    async validateEmail(email: string) {
+    async validateEmail(email: string): Promise<boolean> {
         const user = await this.userRepository.findOneByEmail(email);
         if (!user) {
             return true; // * 동일 이메일로 가입자 없음. 가입 가능

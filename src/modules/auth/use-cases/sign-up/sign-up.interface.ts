@@ -1,4 +1,4 @@
 export interface ISignUpUseCase {
     validatePassword(password: string): boolean;
-    validateEmail(email: string);
+    validateEmail(email: string): Promise<boolean>;
 }
