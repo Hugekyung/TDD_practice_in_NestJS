@@ -23,6 +23,7 @@ export class AuthService {
         // * 동일한 이메일 존재 => 11004
 
         // TODO 3: 휴대전화 번호 중복 검증
+        await this.signUpUseCase.validatePhoneNumber(signUpDto.phone);
 
         return null;
     }

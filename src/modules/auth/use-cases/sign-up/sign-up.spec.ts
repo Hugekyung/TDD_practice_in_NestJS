@@ -58,11 +58,6 @@ describe('SignUpUseCase TEST', () => {
             deletedAt: null,
         };
 
-        // beforeEach(() => {
-        //     // * given: userRepository.findOne() mocked
-        //     jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
-        // });
-
         it('동일한 이메일이 존재할 경우 11004 error code를 반환한다', async () => {
             // * given: userRepository.findOne() mocked
             jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
@@ -92,9 +87,16 @@ describe('SignUpUseCase TEST', () => {
             deletedAt: null,
         };
 
-        // beforeEach(() => {
-        //     jest.spyOn(useCase['userRepository'], 'findOneByPhoneNumber').mockResolvedValue(mockUser);
-        // });
+        it('휴대전화번호로 유저가 검색되지 않으면 true 값을 반환한다', async () => {
+            // * given
+            const registPhoneNumber = '01012345678';
+
+            // * when
+            jest.spyOn(useCase['userRepository'], 'findOneByPhoneNumber').mockResolvedValue(null);
+
+            // * then
+            await expect(useCase.validatePhoneNumber(registPhoneNumber)).resolves.toBeTruthy();
+        });
 
         it('휴대전화번호를 이미 사용하고 있으면 11005 error code를 반환한다', async () => {
             // * given
