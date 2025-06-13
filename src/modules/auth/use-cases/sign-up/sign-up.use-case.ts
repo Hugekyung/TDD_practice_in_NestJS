@@ -48,5 +48,11 @@ export class SignUpUseCase implements ISignUpUseCase {
         if (!user) {
             return true; // * 동일 휴대전화번호로 가입자 없음. 가입 가능
         }
+
+        if (user) {
+            throw new Error('11005');
+        }
+
+        return true;
     }
 }

@@ -2,11 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { convert, LocalDateTime } from 'js-joda';
 import { IUser } from 'src/common/database/entity/users.entity';
 import { UserRepositoryToken } from '../../../../common/constants/injection-tokens.constant';
+import { ISignUpUseCase } from './sign-up.interface';
 import { SignUpUseCase } from './sign-up.use-case';
 import { IUserRepository } from './user-repository.interface';
 
 describe('SignUpUseCase TEST', () => {
-    let useCase: SignUpUseCase;
+    let useCase: ISignUpUseCase;
     let userRepository: IUserRepository;
 
     beforeEach(async () => {
@@ -17,6 +18,7 @@ describe('SignUpUseCase TEST', () => {
                     provide: UserRepositoryToken,
                     useValue: {
                         findOneByEmail: jest.fn(),
+                        findOneByPhoneNumber: jest.fn(),
                     },
                 },
             ],
@@ -60,7 +62,7 @@ describe('SignUpUseCase TEST', () => {
 
         it('동일한 이메일이 존재할 경우 11004 error code를 반환한다', async () => {
             // * given: userRepository.findOne() mocked
-            jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
+            jest.spyOn(userRepository, 'findOneByEmail').mockResolvedValue(mockUser);
 
             // * then
             await expect(useCase.validateEmail(mockUser.email)).rejects.toThrow('11004');
@@ -92,7 +94,7 @@ describe('SignUpUseCase TEST', () => {
             const registPhoneNumber = '01012345678';
 
             // * when
-            jest.spyOn(useCase['userRepository'], 'findOneByPhoneNumber').mockResolvedValue(null);
+            jest.spyOn(userRepository, 'findOneByPhoneNumber').mockResolvedValue(null);
 
             // * then
             await expect(useCase.validatePhoneNumber(registPhoneNumber)).resolves.toBeTruthy();
@@ -103,7 +105,7 @@ describe('SignUpUseCase TEST', () => {
             const phoneNumber = '01012345678';
 
             // * when
-            jest.spyOn(useCase['userRepository'], 'findOneByPhoneNumber').mockResolvedValue(mockUser);
+            jest.spyOn(userRepository, 'findOneByPhoneNumber').mockResolvedValue(mockUser);
 
             // * then
             await expect(useCase.validatePhoneNumber(phoneNumber)).rejects.toThrow('11005');
