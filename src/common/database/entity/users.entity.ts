@@ -4,6 +4,7 @@ export interface IUser {
     id: number;
     email: string;
     password: string;
+    phone: string;
     createdAt: Date;
     deletedAt: Date | null;
 }
@@ -18,6 +19,9 @@ export class User implements IUser {
 
     @Column({ type: 'varchar', length: 1000, comment: '비밀번호(암호)' })
     password: string;
+
+    @Column({ type: 'varchar', length: 100, comment: '휴대전화번호(- 제외)' })
+    phone: string;
 
     @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date;

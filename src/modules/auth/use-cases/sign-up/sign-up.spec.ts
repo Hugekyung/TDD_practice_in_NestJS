@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { convert, LocalDateTime } from 'js-joda';
+import { IUser } from 'src/common/database/entity/users.entity';
 import { UserRepositoryToken } from '../../../../common/constants/injection-tokens.constant';
 import { SignUpUseCase } from './sign-up.use-case';
 import { IUserRepository } from './user-repository.interface';
@@ -48,24 +49,19 @@ describe('SignUpUseCase TEST', () => {
     describe('validateEmail', () => {
         const now = LocalDateTime.now();
         const createdAt = convert(now).toDate();
-        const mockUser: {
-            id: number;
-            email: string;
-            password: string;
-            createdAt: Date;
-            deletedAt: Date | null;
-        } = {
+        const mockUser: IUser = {
             id: 2,
             email: 'test@example.com',
             password: 'user123444',
+            phone: '01012345677',
             createdAt,
             deletedAt: null,
         };
 
-        beforeEach(() => {
-            // * given: userRepository.findOne() mocked
-            jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
-        });
+        // beforeEach(() => {
+        //     // * given: userRepository.findOne() mocked
+        //     jest.spyOn(useCase['userRepository'], 'findOneByEmail').mockResolvedValue(mockUser);
+        // });
 
         it('동일한 이메일이 존재할 경우 11004 error code를 반환한다', async () => {
             // * given: userRepository.findOne() mocked
@@ -83,6 +79,32 @@ describe('SignUpUseCase TEST', () => {
 
             // * when & then
             await expect(useCase.validateEmail(email)).rejects.toThrow('11002');
+        });
+    });
+
+    describe('validatePhoneNumber', () => {
+        const mockUser: IUser = {
+            id: 2,
+            email: 'test@example.com',
+            password: 'user123444',
+            phone: '01012345677',
+            createdAt: new Date(),
+            deletedAt: null,
+        };
+
+        // beforeEach(() => {
+        //     jest.spyOn(useCase['userRepository'], 'findOneByPhoneNumber').mockResolvedValue(mockUser);
+        // });
+
+        it('휴대전화번호를 이미 사용하고 있으면 11005 error code를 반환한다', async () => {
+            // * given
+            const phoneNumber = '01012345678';
+
+            // * when
+            jest.spyOn(useCase['userRepository'], 'findOneByPhoneNumber').mockResolvedValue(mockUser);
+
+            // * then
+            await expect(useCase.validatePhoneNumber(phoneNumber)).rejects.toThrow('11005');
         });
     });
 });
