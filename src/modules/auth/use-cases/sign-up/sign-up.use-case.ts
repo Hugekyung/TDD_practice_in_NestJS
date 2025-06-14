@@ -1,6 +1,10 @@
 import { Inject } from '@nestjs/common';
 import { LocalDate, nativeJs } from 'js-joda';
-import { UserRepositoryToken } from '../../../../common/constants/injection-tokens.constant';
+import {
+    EncryptorServiceToken,
+    UserRepositoryToken,
+} from '../../../../common/constants/injection-tokens.constant';
+import { EncryptorService } from '../../../../utils/encryptor/encryptor.service';
 import { ISignUpUseCase } from './sign-up.interface';
 import { IUserRepository } from './user-repository.interface';
 
@@ -8,6 +12,8 @@ export class SignUpUseCase implements ISignUpUseCase {
     constructor(
         @Inject(UserRepositoryToken)
         private readonly userRepository: IUserRepository,
+        @Inject(EncryptorServiceToken)
+        private readonly encryptorService: EncryptorService,
     ) {}
 
     validatePassword(password: string): boolean {
@@ -44,7 +50,7 @@ export class SignUpUseCase implements ISignUpUseCase {
     }
 
     async validatePhoneNumber(phone: string): Promise<boolean> {
-        const user = await this.userRepository.findOneByPhoneNumber(phone);
+        const user = await this.userRepository.findOneByPhoneNumber(phone); // TODO: hashed 기반으로 검색 필요
         if (!user) {
             return true; // * 동일 휴대전화번호로 가입자 없음. 가입 가능
         }
@@ -54,5 +60,13 @@ export class SignUpUseCase implements ISignUpUseCase {
         }
 
         return true;
+    }
+
+    async encryptPassword(password: string): Promise<string> {
+        return await this.encryptorService.hash(password);
+    }
+
+    encryptPhoneNumber(phone: string): string {
+        return this.encryptorService.encrypt(phone);
     }
 }
