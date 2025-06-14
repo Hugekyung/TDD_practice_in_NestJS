@@ -111,4 +111,14 @@ describe('SignUpUseCase TEST', () => {
             await expect(useCase.validatePhoneNumber(phoneNumber)).rejects.toThrow('11005');
         });
     });
+
+    describe('createUser', () => {
+        it('비밀번호는 암호화되어야 한다', () => {});
+        it('휴대전화번호는 암호화되어야 한다', () => {});
+    });
+
+    describe('signIn', () => {
+        it('이메일 정보가 없으면 11006 error code를 반환한다', async () => {});
+        it('비밀번호가 일치하지 않으면 11007 error code를 반환한다', async () => {});
+    });
 });
