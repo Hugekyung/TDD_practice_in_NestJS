@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { convert, LocalDateTime } from 'js-joda';
-import { IUser } from 'src/common/database/entity/users.entity';
-import { UserRepositoryToken } from '../../../../common/constants/injection-tokens.constant';
+import {
+    EncryptorServiceToken,
+    UserRepositoryToken,
+} from '../../../../common/constants/injection-tokens.constant';
+import { IUser } from '../../../../common/database/entity/users.entity';
+import { IEncryptor } from '../../../../utils/encryptor/encryptor.interface';
 import { ISignUpUseCase } from './sign-up.interface';
 import { SignUpUseCase } from './sign-up.use-case';
 import { IUserRepository } from './user-repository.interface';
@@ -9,6 +13,7 @@ import { IUserRepository } from './user-repository.interface';
 describe('SignUpUseCase TEST', () => {
     let useCase: ISignUpUseCase;
     let userRepository: IUserRepository;
+    let encryptorService: IEncryptor;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -21,11 +26,21 @@ describe('SignUpUseCase TEST', () => {
                         findOneByPhoneNumber: jest.fn(),
                     },
                 },
+                {
+                    provide: EncryptorServiceToken,
+                    useValue: {
+                        hash: jest.fn(),
+                        compare: jest.fn(),
+                        encrypt: jest.fn(),
+                        decrypt: jest.fn(),
+                    },
+                },
             ],
         }).compile();
 
         useCase = module.get<SignUpUseCase>(SignUpUseCase);
         userRepository = module.get<IUserRepository>(UserRepositoryToken);
+        encryptorService = module.get<IEncryptor>(EncryptorServiceToken);
     });
 
     describe('validatePassword', () => {
@@ -113,7 +128,19 @@ describe('SignUpUseCase TEST', () => {
     });
 
     describe('createUser', () => {
-        it('비밀번호는 암호화되어야 한다', () => {});
+        it('비밀번호 암호화를 위해 encryptPassword 메서드를 한번 호출하고, 암호화된 비밀번호를 반환한다', async () => {
+            // * given
+            const originalPassword = 'password1234';
+            const hashedPassword = 'hashedPassword';
+            const hashPasswordSpy = jest.spyOn(encryptorService, 'hash').mockResolvedValue(hashedPassword);
+
+            // * when
+            const result = await useCase.encryptPassword(originalPassword);
+
+            // * then
+            expect(hashPasswordSpy).toHaveBeenCalledWith(originalPassword);
+            expect(result).toBe(hashedPassword);
+        });
         it('휴대전화번호는 암호화되어야 한다', () => {});
     });
 
