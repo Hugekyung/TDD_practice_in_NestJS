@@ -132,8 +132,7 @@ describe('SignUpUseCase TEST', () => {
             // * given
             const originalPassword = 'password1234';
             const hashedPassword = 'hashedPassword';
-            const hashPasswordSpy = jest.spyOn(encryptorService, 'hash').mockResolvedValue(hashedPassword);
-
+            const hashPasswordSpy = jest.spyOn(encryptorService, 'hash').mockResolvedValue(hashedPassword); // ! mockResolvedValue: Promise를 반환하는 메서드를 모킹할 때 사용
             // * when
             const result = await useCase.encryptPassword(originalPassword);
 
@@ -141,7 +140,22 @@ describe('SignUpUseCase TEST', () => {
             expect(hashPasswordSpy).toHaveBeenCalledWith(originalPassword);
             expect(result).toBe(hashedPassword);
         });
-        it('휴대전화번호는 암호화되어야 한다', () => {});
+
+        it('휴대전화번호는 암호화되어야 한다', () => {
+            // * given
+            const originPhoneNumber = '01012345678';
+            const encryptedPhoneNumber = 'encryptedPhoneNumber';
+            const encryptPhoneNumberSpy = jest
+                .spyOn(encryptorService, 'encrypt')
+                .mockReturnValue(encryptedPhoneNumber); // ! mockReturnValue: Promise를 반환하지 않는 메서드를 모킹할 때 사용
+
+            // * when
+            const result = useCase.encryptPhoneNumber(originPhoneNumber);
+
+            // * then
+            expect(encryptPhoneNumberSpy).toHaveBeenCalledWith(originPhoneNumber);
+            expect(result).toBe(encryptedPhoneNumber);
+        });
     });
 
     describe('signIn', () => {

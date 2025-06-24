@@ -11,16 +11,16 @@ export class AuthService {
     ) {}
 
     async signUp(signUpDto: SignUpReqDto) {
-        const { password } = signUpDto;
+        const { email, phone, password } = signUpDto;
 
         // [1] 비밀번호 검증
         this.signUpUseCase.validatePassword(password);
 
         // [2] 이메일 중복 검증
-        await this.signUpUseCase.validateEmail(signUpDto.email);
+        await this.signUpUseCase.validateEmail(email);
 
         // [3] 휴대전화 번호 중복 검증
-        await this.signUpUseCase.validatePhoneNumber(signUpDto.phone);
+        await this.signUpUseCase.validatePhoneNumber(phone);
 
         // TODO: 회원가입
         // TODO: 비밀번호 암호화
